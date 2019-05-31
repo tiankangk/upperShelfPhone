@@ -19,3 +19,14 @@ export const getPhoneUpperShelfShop = params => {
 export const upperShelfShop = params => {
     return axios.post(baseURL + 'upperShelfShop', params).then(res => res.data);
 }
+//登录
+
+export const pickGoodsLogin = params => {
+    return axios.post(baseURL + 'pickGoodsLogin', params).then(res => res.data);
+}
+
+//检查拣货篮有没有被占用
+
+export const isUsedCarNum = params => {
+    return axios.post(baseURL + 'isUsedCarNum', params).then(res => res.data);
+}
