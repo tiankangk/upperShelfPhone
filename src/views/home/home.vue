@@ -3,7 +3,7 @@
     <div class="header-container">
       <div class="keep-height"></div>
       <div class="header-content">
-        <div class="username">{{ getUsername }}</div>
+        <div class="username">{{getUsername}}</div>
         <van-search
           class="search-content"
           v-model.trim="searchVal"
@@ -13,7 +13,7 @@
           shape="round"
           @search="onSearch"
         >
-          <div slot="action" class="search-btn" @click="onSearch">搜索</div>
+          <div slot="action" @click="onSearch">搜索</div>
         </van-search>
       </div>
     </div>
@@ -39,11 +39,7 @@
               placeholder="请扫描货位架"
             />
           </div>
-          <div
-            v-if="!isShow"
-            style="background:#35c347;"
-            class="shelf-container"
-          >
+          <div v-if="!isShow" style="background:#35c347;" class="shelf-container">
             <van-field
               ref="makeSureCart"
               class="shelf-input"
