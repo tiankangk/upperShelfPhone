@@ -3,20 +3,33 @@
     <div class="header-container">
       <div class="keep-height"></div>
       <div class="header-content">
-        <div class="username">{{getUsername}}</div>
-        <van-search
-          class="search-content"
-          v-model.trim="searchVal"
-          background="#1ee5f9"
-          placeholder="请输入编码/条码/名称/助记码"
-          show-action
-          shape="round"
-          @search="onSearch"
+        <div class="search-container">
+          <div class="username">{{ getUsername }}</div>
+          <van-search
+            class="search-content"
+            v-model.trim="searchVal"
+            background="#1ee5f9"
+            placeholder="请输入编码/条码/名称/助记码"
+            show-action
+            shape="round"
+            @search="onSearch"
+          >
+            <div class="header-right" slot="action">
+              <div @click="onSearch" style="margin-right:15px;">搜索</div>
+            </div>
+          </van-search>
+        </div>
+        <van-notice-bar
+          left-icon="volume-o"
+          scrollable
+          mode="link"
+          @click="handleMessage"
         >
-          <div slot="action" @click="onSearch">搜索</div>
-        </van-search>
+          {{ noticeContent }}
+        </van-notice-bar>
       </div>
     </div>
+
     <van-list
       v-model="loading"
       :immediate-check="false"
@@ -39,7 +52,11 @@
               placeholder="请扫描货位架"
             />
           </div>
-          <div v-if="!isShow" style="background:#35c347;" class="shelf-container">
+          <div
+            v-if="!isShow"
+            style="background:#35c347;"
+            class="shelf-container"
+          >
             <van-field
               ref="makeSureCart"
               class="shelf-input"
@@ -51,21 +68,31 @@
         </transition>
       </div>
     </div>
+
+    <message-list :messageInfo="messageInfo"></message-list>
   </div>
 </template>
 
 <script>
 import homeContent from "./components/homeContent";
+import MessageList from "./message-list";
 import { getPhoneUpperShelfShop, upperShelfShop, isUsedCarNum } from "@/api";
 import { mapGetters } from "vuex";
 export default {
   name: "Home",
   components: {
-    homeContent
+    homeContent,
+    MessageList
   },
   inject: ["reload"],
   data() {
     return {
+      messageInfo: {
+        isShow: false
+      },
+
+      noticeContent: "没有需要处理的消息",
+      scrollable: true,
       loading: false,
       finished: false,
       searchVal: "",
@@ -233,12 +260,48 @@ export default {
           document.querySelector(".search-content input").focus();
         }
       });
+    },
+    /**
+     * @description 创建websocket
+     */
+    createWebSocket() {
+      this.websocket = new WebSocket(
+        "ws://ws.tst.yaojushi.com:7131/connection?uid='0722'"
+      );
+      this.websocket.onmessage = event => {
+        console.log("event", event.data);
+        this.noticeContent = "fasdfasd";
+      };
+    },
+    /**
+     * @description 播报语音
+     */
+    broadcastNumber(words) {
+      //   var speechSU = new window.SpeechSynthesisUtterance();
+      //   speechSU.text = "您有需要处理的消息，请及时处理！";
+      //   window.speechSynthesis.speak(speechSU);
+      //   let url = `http://tts.baidu.com/text2audio?lan=zh&ie=UTF-8&spd=5&pit=6&vol=15&per=4&text=${words}`;
+      //   //   let n = new Video(url);
+      //   let n = document.createElement("video");
+      //   n.muted = "muted";
+      //   n.src = url;
+      //   console.log(n);
+      //   n.play();
+    },
+    /**
+     * @description 处理消息
+     */
+    handleMessage() {
+      this.$nextTick(() => {
+        this.messageInfo.isShow = true;
+      });
     }
+  },
+  created() {
+    this.createWebSocket();
   },
   mounted() {
     document.querySelector(".header-content .van-field__control").focus();
-
-    // this.initData();
   }
 };
 </script>
@@ -262,17 +325,24 @@ export default {
   position: relative;
   z-index: 100;
   .keep-height {
-    height: 54px;
+    height: 94px;
   }
   .header-content {
-    display: flex;
     width: 100%;
     position: fixed;
     left: 0;
     top: 0;
     background: #1ee5f9;
     color: #ec47d1;
-    align-items: center;
+    .search-container {
+      display: flex;
+      align-items: center;
+    }
+    .header-right {
+      //   color: #fff;
+      display: flex;
+      align-items: center;
+    }
     .username {
       width: 50px;
       text-align: center;

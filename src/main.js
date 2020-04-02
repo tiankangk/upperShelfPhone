@@ -5,12 +5,40 @@ import App from './App'
 import router from './router'
 import store from '@/store'
 import '@/styles/index.less'
-import { Search, Cell, CellGroup, Field, Checkbox, CheckboxGroup, Toast, Dialog, Loading, List,Button } from 'vant';
+import {
+    Search,
+    Cell,
+    CellGroup,
+    Field,
+    Checkbox,
+    CheckboxGroup,
+    Toast,
+    Dialog,
+    Loading,
+    List,
+    Button,
+    Icon,
+    NoticeBar,
+    Popup
+} from 'vant';
 import 'vant/lib/index.css';
 
 Vue.config.productionTip = false
 
-Vue.use(Search).use(Cell).use(CellGroup).use(Field).use(Checkbox).use(CheckboxGroup).use(Toast).use(Dialog).use(Loading).use(List).use(Button);
+Vue.use(Search)
+    .use(Cell)
+    .use(Popup)
+    .use(CellGroup)
+    .use(Field)
+    .use(Checkbox)
+    .use(CheckboxGroup)
+    .use(Toast)
+    .use(Dialog)
+    .use(Loading)
+    .use(List)
+    .use(Button)
+    .use(Icon)
+    .use(NoticeBar);
 
 /* eslint-disable no-new */
 new Vue({
