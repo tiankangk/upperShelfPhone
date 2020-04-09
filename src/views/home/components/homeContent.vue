@@ -9,23 +9,31 @@
       <van-cell title="商品名称" :value="shop.YPMC" />
       <div class="cell-container">
         <van-cell class="red red-block" title="规格" :value="shop.YPGG" />
-        <van-cell title="剂型" :value="shop.JXMC" />
+        <!-- <van-cell title="剂型" :value="shop.JXMC" /> -->
       </div>
       <van-cell title="生产厂家" :value="shop.SCCJ" />
       <div class="cell-container">
-        <van-cell title="剂量单位" :value="shop.JLDW" />
+        <!-- <van-cell title="剂量单位" :value="shop.JLDW" /> -->
         <van-cell class="red" title="入库数量" :value="shop.SL" />
+        <van-cell class="red up-shelf" title="上架数量">
+          <input
+            type="text"
+            :style="{ width: '100%' }"
+            @blur="registerSl(shop, 'SJSL')"
+            v-model="shop.SJSL"
+            placeholder="请输入上架数量"
+          />
+        </van-cell>
       </div>
-      <div class="input-tm red-block">
+      <!-- <div class="input-tm red-block">
         <div :style="{ color: 'black' }">上架数量</div>
         <input
           type="text"
           @blur="registerSl(shop)"
           v-model="shop.SJSL"
           placeholder="请输入上架数量"
-          style="text-align:right;"
         />
-      </div>
+      </div> -->
       <div class="cell-container">
         <van-cell class="red blue-block" title="产品批号" :value="shop.SCPH" />
         <van-cell
@@ -62,16 +70,25 @@
                 />
             </van-cell-group>-->
 
-      <div class="cell-container">
+      <!-- <div class="cell-container">
         <van-cell title="储存条件" class="blod" :value="shop.CCTJ" />
         <van-cell title="处方分类" :value="shop.YPLX" />
-      </div>
+      </div> -->
       <div class="cell-container">
         <van-cell title="商品编码" :value="shop.YPBM" />
         <!-- <van-cell title="产品批号" :value="shop.SCPH"/> -->
       </div>
-      <van-cell title="入库单号" :value="shop.ID" />
+      <!-- <van-cell title="入库单号" :value="shop.ID" /> -->
       <van-cell title="供应商名称" :value="shop.DWMC" />
+      <van-cell class="refuse" title="拒收数量">
+        <input
+          type="text"
+          :style="{ width: '100%' }"
+          @blur="registerSl(shop, 'JSSL')"
+          v-model="shop.JSSL"
+          placeholder="请输入拒收数量"
+        />
+      </van-cell>
     </div>
   </div>
 </template>
@@ -109,20 +126,20 @@ export default {
   },
   methods: {
     // 上架数量输入框的验证
-    registerSl(shop) {
+    registerSl(shop, type) {
       console.log("shop", shop);
       let reg = /^[1-9]\d*$/g;
-      if (reg.test(shop.SJSL)) {
-        if (shop.SJSL > shop.SL) {
-          shop.SJSL = "";
-          this.$toast.fail("上架数量不能大于订单数量！");
+      if (reg.test(shop[type])) {
+        if (shop[type] > shop.SL) {
+          shop[type] = "";
+          this.$toast.fail(
+            `${type === "SJSL" ? "上架" : "拒收"}数量不能大于订单数量！`
+          );
         }
       } else {
-        shop.SJSL = "";
+        shop[type] = "";
         this.$toast.fail("请输入正整数！");
       }
-
-      // console.log('val',e.target.value);
     },
     clickChecked(ind) {
       this.shopList.forEach((item, inds) => {
@@ -239,9 +256,18 @@ export default {
   border-right: 1px solid #ebedf0;
 }
 
+.card .refuse /deep/ .van-cell__title {
+  width: 10%;
+  color: red;
+}
+
+.card .up-shelf /deep/ .van-cell__title {
+  width: 80%;
+}
+
 .card /deep/ .van-cell__title {
   flex: auto;
-  width: 35%;
+  width: 30%;
 }
 .card /deep/ .van-cell__value {
   flex: auto;

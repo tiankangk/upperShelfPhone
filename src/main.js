@@ -19,7 +19,8 @@ import {
     Button,
     Icon,
     NoticeBar,
-    Popup
+    Popup,
+    Picker
 } from 'vant';
 import 'vant/lib/index.css';
 
@@ -27,6 +28,7 @@ Vue.config.productionTip = false
 
 Vue.use(Search)
     .use(Cell)
+    .use(Picker)
     .use(Popup)
     .use(CellGroup)
     .use(Field)

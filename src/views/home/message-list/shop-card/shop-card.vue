@@ -1,77 +1,49 @@
 <template>
   <div class="home-content">
-    <div class="card" v-for="(shop, ind) in shopList" :key="ind">
-      <van-checkbox
+    <div
+      class="card"
+      @click="clickChecked(ind, shop)"
+      v-for="(shop, ind) in shopList"
+      :key="ind"
+    >
+      <span v-if="shop.checked" class="icon-choosed iconfont icon-in_gouxuan"></span>
+      <!-- <van-checkbox
         class="check"
         @click="clickChecked(ind)"
         v-model="shop.checked"
-      ></van-checkbox>
+      ></van-checkbox> -->
       <van-cell title="商品名称" :value="shop.YPMC" />
       <div class="cell-container">
         <van-cell class="red red-block" title="规格" :value="shop.YPGG" />
-        <van-cell title="剂型" :value="shop.JXMC" />
+        <van-cell class="red blue-block" title="产品批号" :value="shop.SCPH" />
       </div>
       <van-cell title="生产厂家" :value="shop.SCCJ" />
-      <div class="cell-container">
+      <!-- <div class="cell-container">
         <van-cell title="剂量单位" :value="shop.JLDW" />
         <van-cell class="red" title="入库数量" :value="shop.SL" />
-      </div>
-      <div class="input-tm red-block">
-        <div :style="{ color: 'black' }">上架数量</div>
-        <input
-          type="text"
-          @blur="registerSl(shop)"
-          v-model="shop.SJSL"
-          placeholder="请输入上架数量"
-          style="text-align:right;"
-        />
-      </div>
-      <div class="cell-container">
+      </div> -->
+
+      <!-- <div class="cell-container">
         <van-cell class="red blue-block" title="产品批号" :value="shop.SCPH" />
         <van-cell
           title="有效期至"
           :value="shop.YXQZ ? shop.YXQZ.split('T')[0] : ''"
         />
-      </div>
+      </div> -->
       <van-cell class="red red-block" title="货架位号" :value="shop.HWBH" />
-      <van-cell title="批准文号" :value="shop.PZWH" />
-      <van-cell
-        v-if="shop.YPTM"
-        :class="{ 'blue-block': shop.YPTM ? false : true }"
-        title="商品条码"
-        :value="shop.YPTM"
-      />
-      <div v-else class="input-tm">
-        <div style="color:blue;font-weight:700">商品条码</div>
-        <input
-          type="text"
-          v-model="shop.XTM"
-          placeholder="请输入商品条码"
-          style="text-align:right;"
-        />
-      </div>
-
-      <!-- <van-cell-group>
-                <van-cell
-                    v-if="!!titleList[ind1]"
-                    class="cell"
-                    v-for="(shopInfo,ind1) in shop"
-                    :key="ind1"
-                    :title="titleList[ind1]"
-                    :value="shopInfo"
-                />
-            </van-cell-group>-->
+      <!-- <van-cell title="批准文号" :value="shop.PZWH" />
+      <van-cell title="商品条码" :value="shop.YPTM" />
 
       <div class="cell-container">
         <van-cell title="储存条件" class="blod" :value="shop.CCTJ" />
         <van-cell title="处方分类" :value="shop.YPLX" />
-      </div>
-      <div class="cell-container">
+      </div> -->
+      <!-- <div class="cell-container">
         <van-cell title="商品编码" :value="shop.YPBM" />
-        <!-- <van-cell title="产品批号" :value="shop.SCPH"/> -->
+        
       </div>
       <van-cell title="入库单号" :value="shop.ID" />
-      <van-cell title="供应商名称" :value="shop.DWMC" />
+      <van-cell title="供应商名称" :value="shop.DWMC" /> -->
     </div>
   </div>
 </template>
@@ -124,12 +96,19 @@ export default {
 
       // console.log('val',e.target.value);
     },
-    clickChecked(ind) {
+    clickChecked(ind, row) {
+      console.log("ind", ind);
       this.shopList.forEach((item, inds) => {
-        if (inds !== ind) {
-          item.checked = false;
-        }
+        this.$set(item, "checked", inds === ind);
+        // if (inds !== ind) {
+
+        //   item.checked = false;
+        // } else {
+        //     this.$set(item,'checked',true);
+        //   item.checked = true;
+        // }
       });
+      this.$emit("on-click", row);
     }
   },
   mounted() {
@@ -164,26 +143,26 @@ export default {
     font-weight: 700;
   }
 }
-.input-tm {
-  position: relative;
-  padding: 5px 15px;
-  line-height: 24px;
-  display: flex;
-  justify-content: space-between;
-}
-.input-tm::after {
-  content: " ";
-  position: absolute;
-  pointer-events: none;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  left: 15px;
-  right: 0;
-  bottom: 0;
-  -webkit-transform: scaleY(0.5);
-  transform: scaleY(0.5);
-  border-bottom: 1px solid #ebedf0;
-}
+// .input-tm {
+//   position: relative;
+//   padding: 5px 15px;
+//   line-height: 24px;
+//   display: flex;
+//   justify-content: space-between;
+// }
+// .input-tm::after {
+//   content: " ";
+//   position: absolute;
+//   pointer-events: none;
+//   -webkit-box-sizing: border-box;
+//   box-sizing: border-box;
+//   left: 15px;
+//   right: 0;
+//   bottom: 0;
+//   -webkit-transform: scaleY(0.5);
+//   transform: scaleY(0.5);
+//   border-bottom: 1px solid #ebedf0;
+// }
 .home-content /deep/ .van-cell__title {
   color: #969799;
 }
@@ -222,7 +201,7 @@ export default {
   border-bottom: 1px solid #ebedf0;
 }
 
-.card /deep/ .van-cell:not(:last-child)::before {
+.cell-container /deep/ .van-cell:not(:last-child)::before {
   content: " ";
   z-index: 49;
   position: absolute;
@@ -241,7 +220,7 @@ export default {
 
 .card /deep/ .van-cell__title {
   flex: auto;
-  width: 35%;
+  width: 37%;
 }
 .card /deep/ .van-cell__value {
   flex: auto;
@@ -250,12 +229,25 @@ export default {
   padding: 5px 10px;
 }
 .card {
-  padding-top: 30px;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+  position: relative;
+  padding:0 10px 10px 0;
+//   &.active {
+//     box-shadow: 0 0 4px 1px #0de0f5;
+//   }
+  .icon-choosed {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    color: red;
+    font-size: 40px;
+    z-index: 99;
+  }
+  //   padding-top: 30px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   border-color: #eee;
   width: 100%;
   position: relative;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   .cell-container {
     display: flex;
   }

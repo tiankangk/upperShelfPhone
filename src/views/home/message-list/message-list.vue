@@ -3,15 +3,30 @@
     <van-popup
       v-model="messageInfo.isShow"
       @open="openPopup"
-      closeable
+      @close="closePopup"
       position="bottom"
-      :style="{ height: '80%' }"
+      round
+      :style="{ height: '90%' }"
     >
       <div class="popup-content">
         <div class="header">
-          header
+          <span>消息处理</span>
+          <van-icon
+            :style="{ fontSize: '30px' }"
+            @click="messageInfo.isShow = false"
+            name="cross"
+          />
         </div>
         <div class="content">
+          <div v-if="loadingData" class="loadingData">
+            <van-loading
+              class="loading"
+              type="spinner"
+              vertical
+              color="#1989fa"
+            />
+          </div>
+
           <van-list
             v-model="loading"
             :immediate-check="false"
@@ -19,10 +34,22 @@
             finished-text="没有更多了"
             @load="onLoad"
           >
-            <shop-card :shopList="shopList"></shop-card>
+            <shop-card
+              :shopList="shopList"
+              @on-click="handleChoose"
+            ></shop-card>
           </van-list>
         </div>
-        <div class="footer">footer</div>
+        <div class="footer">
+          <van-field
+            ref="shelfCode"
+            class="shelf-input"
+            @keyup.enter.native="handleMessage('normal')"
+            v-model="shelfCode"
+            placeholder="请扫描货架位号"
+          />
+          <span @click="handleMessage('abnormal')">无货</span>
+        </div>
       </div>
     </van-popup>
   </div>
@@ -30,7 +57,8 @@
 
 <script>
 import ShopCard from "./shop-card";
-import { getHandleMessage } from "@/api";
+import { getHandleMessage, processMessage } from "@/api";
+import { mapGetters } from "vuex";
 export default {
   name: "message_list",
   props: {
@@ -38,119 +66,157 @@ export default {
       type: Object,
       default() {
         return {};
-      }
-    }
+      },
+    },
   },
   components: {
-    ShopCard
+    ShopCard,
   },
-
+  computed: {
+    ...mapGetters(["getUserId", "getUserMc"]),
+  },
   data() {
     return {
+      loadingData: false,
       loading: false,
       finished: false,
       page: 1,
-      shopList: [
-        {
-          px: "1",
-          YPBM: "100137",
-          YPMC: "氨溴特罗口服溶液(易坦静)",
-          YPGG: "120ml",
-          JLDW: "盒",
-          JXMC: "溶液剂",
-          PZWH: "国药准字H20040317",
-          RQ: "2020-03-26T11:59:34.000Z",
-          SCCJ: "北京韩美药品有限公司",
-          SCPH: "19030004",
-          SCRQ: "2019-03-06T00:00:00.000Z",
-          SL: 1,
-          YPBM: "100137",
-          YPGG: "120ml",
-          YPLX: "处方药",
-          YPMC: "氨溴特罗口服溶液(易坦静)",
-          YPTM: "6932721511234",
-          YXQX: 1095,
-          YXQZ: "2022-03-05T00:00:00.000Z"
-        },
-        {
-          px: "1",
-          YPBM: "100137",
-          YPMC: "氨溴特罗口服溶液(易坦静)",
-          YPGG: "120ml",
-          JLDW: "盒",
-          JXMC: "溶液剂",
-          PZWH: "国药准字H20040317",
-          RQ: "2020-03-26T11:59:34.000Z",
-          SCCJ: "北京韩美药品有限公司",
-          SCPH: "19030004",
-          SCRQ: "2019-03-06T00:00:00.000Z",
-          SL: 1,
-          YPBM: "100137",
-          YPGG: "120ml",
-          YPLX: "处方药",
-          YPMC: "氨溴特罗口服溶液(易坦静)",
-          YPTM: "6932721511234",
-          YXQX: 1095,
-          YXQZ: "2022-03-05T00:00:00.000Z"
-        },
-        {
-          px: "1",
-          YPBM: "100137",
-          YPMC: "氨溴特罗口服溶液(易坦静)",
-          YPGG: "120ml",
-          JLDW: "盒",
-          JXMC: "溶液剂",
-          PZWH: "国药准字H20040317",
-          RQ: "2020-03-26T11:59:34.000Z",
-          SCCJ: "北京韩美药品有限公司",
-          SCPH: "19030004",
-          SCRQ: "2019-03-06T00:00:00.000Z",
-          SL: 1,
-          YPBM: "100137",
-          YPGG: "120ml",
-          YPLX: "处方药",
-          YPMC: "氨溴特罗口服溶液(易坦静)",
-          YPTM: "6932721511234",
-          YXQX: 1095,
-          YXQZ: "2022-03-05T00:00:00.000Z"
-        }
-      ]
+      pageSize: 3,
+      shelfCode: "",
+      chooseRow: {},
+      shopList: [],
     };
   },
   methods: {
-    openPopup() {
-      this.initShop();
-    },
-    initShop() {
-      getHandleMessage({
-        pageIndex: this.page,
-        pageSize: 10
-      }).then(res => {
+    processMessage(data) {
+      processMessage(data).then((res) => {
         console.log(res);
-        // this.loading = false;
-        // this.shopList.push(...res.result);
-        // if (res.result.length < 10) {
-        //   this.finished = true;
-        // }
+        this.shelfCode = "";
+        if (res.success && res.result) {
+          this.$toast.success(res.message);
+        } else {
+          this.$toast.fail(res.message);
+        }
+        this.initShop();
       });
     },
+    /**
+     * @description 处理消息
+     */
+    handleMessage(type) {
+      let row = this.chooseRow;
+      let data = {
+        id: row.id,
+        processUserId: this.getUserId,
+        processUserName: this.getUserMc,
+        processedStatus: type === "normal" ? 200 : 300,
+      };
+      if (type === "normal") {
+        if (this.shelfCode) {
+          console.log(this.shelfCode, row.HWBH);
+          if (this.shelfCode === row.HWBH) {
+            this.processMessage(data);
+          } else {
+            this.$toast.fail("请扫描正确的货位编号");
+          }
+        } else {
+          this.$toast.fail("请扫描货位编号");
+        }
+      } else {
+        this.$dialog
+          .confirm({
+            title: "标题",
+            message: "确定无货吗？",
+          })
+          .then(() => {
+            this.processMessage(data);
+          });
+      }
+    },
+    /**
+     * @description 选择要处理的消息
+     */
+    handleChoose(row) {
+      this.chooseRow = row;
+      this.$refs.shelfCode.focus();
+    },
+    /**
+     * @description 关闭弹出框
+     */
+    closePopup() {
+      this.chooseRow = {};
+    },
+    /**
+     * @description 打开弹出框
+     */
+    openPopup() {
+      this.initShop();
+      this.$nextTick(() => {
+        this.$refs.shelfCode.focus();
+      });
+    },
+    /**
+     * @description 格式化后台返回的信息
+     */
+    formatMessage(result) {
+      return result.map((item) => {
+        let obj = { ...JSON.parse(item.notificationContent) };
+        obj.id = item.id;
+        return obj;
+      });
+    },
+    /**
+     * @description 打开弹框时初始化消息
+     */
+    initShop() {
+      this.page = 1;
+      this.loadingData = true;
+      getHandleMessage({
+        pageIndex: this.page,
+        pageSize: this.pageSize,
+      }).then((res) => {
+        console.log(res);
+        this.loading = false;
+        this.loadingData = false;
+        if (res.success) {
+          this.shopList = this.formatMessage(res.result.notifications);
+          if (0 in this.shopList) {
+            this.$set(this.shopList[0], "checked", true);
+            this.chooseRow = this.shopList[0];
+          }
+
+          if (res.result.notifications.length < this.pageSize) {
+            this.finished = true;
+          }
+        } else {
+          this.shopList = [];
+          this.finished = true;
+        }
+      });
+    },
+    /**
+     * @description 滚动加载消息
+     */
     onLoad() {
-      // this.reload();
       this.loading = true;
       this.page++;
       getHandleMessage({
         pageIndex: this.page,
-        pageSize: 10
-      }).then(res => {
+        pageSize: this.pageSize,
+      }).then((res) => {
         console.log(res);
-        // this.loading = false;
-        // this.shopList.push(...res.result);
-        // if (res.result.length < 10) {
-        //   this.finished = true;
-        // }
+        this.loading = false;
+        if (res.success) {
+          this.shopList.push(...this.formatMessage(res.result.notifications));
+          if (res.result.notifications.length < this.pageSize) {
+            this.finished = true;
+          }
+        } else {
+          this.finished = true;
+        }
       });
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -161,17 +227,47 @@ export default {
   height: 100%;
   overflow: hidden;
   .header {
-    height: 40px;
-    line-height: 40px;
+    // height: 80px;
+    // line-height: 60px;
+    padding: 10px;
     font-size: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 10px 10px 20px;
+    border-bottom: 1px solid lightgrey;
   }
   .content {
     flex-grow: 1;
     overflow: auto;
+    position: relative;
+    .loadingData {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 100%;
+      z-index: 99;
+      background: rgba(0, 0, 0, 0);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
   }
   .footer {
-    height: 40px;
-    line-height: 40px;
+    background-color: #1ee5f9;
+    border-top: 1px solid lightgrey;
+    padding: 5px 0;
+    // height:80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .shelf-input {
+      text-align: center;
+      border-radius: 4px;
+      width: 70%;
+      margin: 0 10px;
+    }
   }
 }
 </style>

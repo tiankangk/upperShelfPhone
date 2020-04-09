@@ -1,0 +1,29 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
+<!--
+2013-9-30: Created.
+-->
+<svg>
+<metadata>
+Created by iconfont
+</metadata>
+<defs>
+
+<font id="iconfont" horiz-adv-x="1024" >
+  <font-face
+    font-family="iconfont"
+    font-weight="500"
+    font-stretch="normal"
+    units-per-em="1024"
+    ascent="896"
+    descent="-128"
+  />
+    <missing-glyph />
+    
+    <glyph glyph-name="in_gouxuan" unicode="&#58880;" d="M256-128h768V640l-768-768z m493.6 108.8L704-64l-45.6 45.6L576 64l45.6 45.6 82.4-83.2 210.4 210.4 45.6-45.6-210.4-210.4z"  horiz-adv-x="1024" />
+
+    
+
+
+  </font>
+</defs></svg>
