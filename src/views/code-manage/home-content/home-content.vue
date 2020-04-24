@@ -1,19 +1,23 @@
 <template>
   <div class="home-content">
-    <div class="card" v-for="(shop, ind) in shopList" :key="ind">
+    <div
+      class="card"
+      :style="{ paddingTop: isChecked ? '30px' : 0 }"
+      v-for="(shop, ind) in shopList"
+      :key="ind"
+    >
       <van-checkbox
+        v-if="isChecked"
         class="check"
         @click="clickChecked(ind)"
         v-model="shop.checked"
       ></van-checkbox>
-      <van-cell title="商品名称" :value="shop.YPMC" />
+      <van-cell class="black-bold" title="商品名称" :value="shop.YPMC" />
       <div class="cell-container">
-        <van-cell class="red red-block" title="规格" :value="shop.YPGG" />
-        <!-- <van-cell title="剂型" :value="shop.JXMC" /> -->
+        <van-cell class="red blue-block" title="规格" :value="shop.YPGG" />
       </div>
       <van-cell title="生产厂家" :value="shop.SCCJ" />
       <div class="cell-container">
-        <!-- <van-cell title="剂量单位" :value="shop.JLDW" /> -->
         <van-cell class="red" title="入库数量" :value="shop.SL" />
         <van-cell class="red up-shelf" title="上架数量">
           <input
@@ -25,15 +29,7 @@
           />
         </van-cell>
       </div>
-      <!-- <div class="input-tm red-block">
-        <div :style="{ color: 'black' }">上架数量</div>
-        <input
-          type="text"
-          @blur="registerSl(shop)"
-          v-model="shop.SJSL"
-          placeholder="请输入上架数量"
-        />
-      </div> -->
+
       <div class="cell-container">
         <van-cell class="red blue-block" title="产品批号" :value="shop.SCPH" />
         <van-cell
@@ -58,30 +54,13 @@
           style="text-align:right;"
         />
       </div>
-
-      <!-- <van-cell-group>
-                <van-cell
-                    v-if="!!titleList[ind1]"
-                    class="cell"
-                    v-for="(shopInfo,ind1) in shop"
-                    :key="ind1"
-                    :title="titleList[ind1]"
-                    :value="shopInfo"
-                />
-            </van-cell-group>-->
-
-      <!-- <div class="cell-container">
-        <van-cell title="储存条件" class="blod" :value="shop.CCTJ" />
-        <van-cell title="处方分类" :value="shop.YPLX" />
-      </div> -->
       <div class="cell-container">
         <van-cell title="商品编码" :value="shop.YPBM" />
-        <!-- <van-cell title="产品批号" :value="shop.SCPH"/> -->
       </div>
-      <!-- <van-cell title="入库单号" :value="shop.ID" /> -->
       <van-cell title="供应商名称" :value="shop.DWMC" />
       <van-cell class="refuse" title="拒收数量">
         <input
+          class="refuse-input"
           type="text"
           :style="{ width: '100%' }"
           @blur="registerSl(shop, 'JSSL')"
@@ -100,29 +79,16 @@ export default {
     shopList: {
       type: Array,
       required: true
+    },
+    isChecked: {
+      type: Boolean,
+      default() {
+        return true;
+      }
     }
   },
   data() {
-    return {
-      titleList: {
-        // ID: "入库单号",
-        // DWMC: "供应商名称",
-        // YPBM: "商品编码",
-        // YPTM: "商品条码",
-        // YPMC: "商品名称",
-        // YPGG: "规格",
-        // JLDW: "计量单位",
-        // JXMC: "剂型",
-        // SCCJ: "生产厂家",
-        // PZWH: "批准文号",
-        // SL: "入库数量",
-        // SCPH: "产品批号",
-        // YXQZ: "有效期至",
-        // HWBH: "货架位号"
-        // CCTJ: "储存条件",
-        // YPLX: "处方分类"
-      }
-    };
+    return {};
   },
   methods: {
     // 上架数量输入框的验证
@@ -156,6 +122,14 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.black-bold {
+  color: #333;
+  font-weight: 700;
+  /deep/ .van-cell__title {
+    color: #333 !important;
+    font-weight: 700;
+  }
+}
 .red-block {
   color: red;
   font-weight: 700;
@@ -177,7 +151,7 @@ export default {
     font-weight: 700;
   }
   /deep/ .van-cell__value {
-    color: blue !important;
+    color: #66a3f6 !important;
     font-weight: 700;
   }
 }
@@ -210,7 +184,7 @@ export default {
 }
 
 .red /deep/ .van-cell__value {
-  color: red;
+  color: #ff656e;
 }
 .card /deep/.van-checkbox__icon {
   height: 25px;
@@ -236,7 +210,7 @@ export default {
   bottom: 0;
   -webkit-transform: scaleY(0.5);
   transform: scaleY(0.5);
-  border-bottom: 1px solid #ebedf0;
+  border-bottom: 0 solid #ebedf0;
 }
 
 .card /deep/ .van-cell:not(:last-child)::before {
@@ -258,7 +232,17 @@ export default {
 
 .card .refuse /deep/ .van-cell__title {
   width: 10%;
-  color: red;
+  color: #333 !important;
+  font-weight: 700;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.refuse-input {
+  border: 1px solid #ebedf0;
+  border-radius: 30px;
+  padding: 5px 10px;
 }
 
 .card .up-shelf /deep/ .van-cell__title {
@@ -276,9 +260,6 @@ export default {
   padding: 5px 10px;
 }
 .card {
-  padding-top: 30px;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
-  border-color: #eee;
   width: 100%;
   position: relative;
   margin-bottom: 10px;

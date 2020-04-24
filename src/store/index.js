@@ -9,19 +9,21 @@ const mutations = {
     setUserInfo(state, userInfo) {
         state.username = userInfo.MC;
         state.userId = userInfo.BM;
-        localStorage.setItem('username', userInfo.MC);
-        localStorage.setItem('userId', userInfo.BM);
+        console.log('userInfo',userInfo);
+        sessionStorage.setItem('username', userInfo.DLMC);
+        sessionStorage.setItem('mc', userInfo.MC);
+        sessionStorage.setItem('userId', userInfo.BM);
     }
 }
 const getters = {
     getUsername(state) {
-        return localStorage.getItem('username');
+        return sessionStorage.getItem('username');
     },
     getUserId(state) {
-        return localStorage.getItem('userId');
+        return sessionStorage.getItem('userId');
     },
     getUserMc(state) {
-        return localStorage.getItem('mc');
+        return sessionStorage.getItem('mc');
     }
 }
 

@@ -5,6 +5,8 @@ import App from './App'
 import router from './router'
 import store from '@/store'
 import '@/styles/index.less'
+
+
 import {
     Search,
     Cell,
@@ -20,13 +22,21 @@ import {
     Icon,
     NoticeBar,
     Popup,
-    Picker
+    Picker,
+    Tabbar, TabbarItem,
+    DropdownMenu, DropdownItem,
+    Switch,
+    SwitchCell
 } from 'vant';
 import 'vant/lib/index.css';
 
 Vue.config.productionTip = false
 
-Vue.use(Search)
+Vue.use(SwitchCell)
+    .use(Switch).use(DropdownMenu)
+    .use(DropdownItem).use(Tabbar)
+    .use(TabbarItem)
+    .use(Search)
     .use(Cell)
     .use(Picker)
     .use(Popup)

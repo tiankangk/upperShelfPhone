@@ -1,0 +1,64 @@
+@import './variables.less';
+
+// border
+.border-top-bottom() {
+  content: '';
+  position: absolute;
+  width: 100%;
+  border-bottom: 1px solid @light-grey;
+  left: 0;
+  transform: scaleY(0.5);
+}
+
+.border-left-right() {
+  content: '';
+  position: absolute;
+  height: 100%;
+  border-right: 1px solid @light-grey;
+  top: 0;
+  transform: scaleX(0.5);
+}
+
+.border-bottom {
+  position: relative;
+
+  &::before {
+    .border-top-bottom();
+    bottom: 0;
+
+  }
+
+}
+
+.border-top {
+  position: relative;
+
+  &::before {
+    .border-top-bottom();
+    top: 0;
+
+  }
+
+}
+
+.border-left {
+  position: relative;
+
+  &::after {
+    .border-left-right();
+    left: 0;
+
+  }
+
+}
+
+.border-right {
+  position: relative;
+
+  &::after {
+    .border-left-right();
+    right: 0;
+
+  }
+
+}

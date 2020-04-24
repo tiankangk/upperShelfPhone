@@ -5,16 +5,28 @@ Vue.use(Router)
 
 let router = new Router({
     routes: [
+        // {
+        //     path: '/',
+        //     name: '_home',
+        //     redirect:'/home'
+        // }, 
         {
             path: '/',
-            name: '_home',
-            redirect:'/home'
-        }, 
-        {
-            path: '/home',
             name: 'home',
-            component: () => import('views/home/home.vue')
-        },{
+            component: () => import('views/home/home.vue'),
+            children: [
+                {
+                    path: 'up_shelf',
+                    name: 'up_shelf',
+                    component: () => import('views/up-shelf/up-shelf.vue'),
+                },
+                {
+                    path: 'code_manage',
+                    name: 'code_manage',
+                    component: () => import('views/code-manage/code-manage.vue'),
+                }
+            ]
+        }, {
             path: '/login',
             name: 'login',
             component: () => import('views/login/login')
@@ -22,12 +34,12 @@ let router = new Router({
     ]
 })
 
-router.beforeEach((to,from,next)=>{
-    let user = localStorage.getItem('userId');
-    if(user){
+router.beforeEach((to, from, next) => {
+    let user = sessionStorage.getItem('userId');
+    if (user) {
         next()
     } else {
-        if (to.path!='/login'){
+        if (to.path != '/login') {
             next('/login');
         } else {
             next();
