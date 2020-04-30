@@ -4,11 +4,13 @@ import store from '@/store'
 if (process.env.NODE_ENV === 'development') {
     var baseURL = `http://192.168.0.71:3001/`;
     var outURL = `http://mqs-api.tst.yaojushi.com/svc/v1/`;
+    var productURL = `http://product-api.tst.yaojushi.com/svc/v1/`;
     // var outURL = `http://mqs-api.yaojushi.com/svc/v1/`;
 
 } else {
     var baseURL = `http://192.168.0.38:3001/`;
     var outURL = `http://mqs-api.yaojushi.com/svc/v1/`;
+    var productURL = `http://product-api.yaojushi.com/svc/v1/`;
 }
 
 /**
@@ -54,6 +56,24 @@ export const processMessage = params => {
 export const refuseUpshelfShop = params => {
     return axios.post(baseURL + 'refuseUpshelfShop', params).then(res => res.data);
 }
+
+
+//获取没有商品条形码的商品信息
+
+export const getNoCodeShop = params => {
+    return axios.get(`${productURL}product/temp`, { params }).then(res => res.data);
+}
+
+//获取没有商品条形码的商品信息
+
+export const saveCode = data => {
+    return axios.patch(`${productURL}product/internationalBarCode`, data).then(res => res.data);
+}
+
+
+
+
+
 
 
 

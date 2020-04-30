@@ -1,7 +1,7 @@
 <template>
   <div class="home-content">
     <div
-      class="card"
+      class="card border-bottom"
       :style="{ paddingTop: isChecked ? '30px' : 0 }"
       v-for="(shop, ind) in shopList"
       :key="ind"
@@ -12,60 +12,35 @@
         @click="clickChecked(ind)"
         v-model="shop.checked"
       ></van-checkbox>
-      <van-cell class="black-bold" title="商品名称" :value="shop.YPMC" />
+      <van-cell class="black-bold" title="商品名称" :value="shop.productName" />
       <div class="cell-container">
-        <van-cell class="red blue-block" title="规格" :value="shop.YPGG" />
+        <van-cell
+          class="red blue-block"
+          title="规格"
+          :value="shop.specification"
+        />
       </div>
-      <van-cell title="生产厂家" :value="shop.SCCJ" />
-      <div class="cell-container">
-        <van-cell class="red" title="入库数量" :value="shop.SL" />
-        <van-cell class="red up-shelf" title="上架数量">
-          <input
-            type="text"
-            :style="{ width: '100%' }"
-            @blur="registerSl(shop, 'SJSL')"
-            v-model="shop.SJSL"
-            placeholder="请输入上架数量"
-          />
-        </van-cell>
-      </div>
+      <van-cell title="生产厂家" :value="shop.manufacturerName" />
+
+      <van-cell
+        class="red red-block"
+        title="货架位号"
+        :value="shop.allocation"
+      />
+      <van-cell title="批准文号" :value="shop.approvalNumber" />
 
       <div class="cell-container">
-        <van-cell class="red blue-block" title="产品批号" :value="shop.SCPH" />
-        <van-cell
-          title="有效期至"
-          :value="shop.YXQZ ? shop.YXQZ.split('T')[0] : ''"
-        />
+        <van-cell title="商品编码" :value="shop.productId" />
       </div>
-      <van-cell class="red red-block" title="货架位号" :value="shop.HWBH" />
-      <van-cell title="批准文号" :value="shop.PZWH" />
-      <van-cell
-        v-if="shop.YPTM"
-        :class="{ 'blue-block': shop.YPTM ? false : true }"
-        title="商品条码"
-        :value="shop.YPTM"
-      />
-      <div v-else class="input-tm">
-        <div style="color:blue;font-weight:700">商品条码</div>
+      <van-cell class="refuse" title="商品条码">
         <input
-          type="text"
-          v-model="shop.XTM"
-          placeholder="请输入商品条码"
-          style="text-align:right;"
-        />
-      </div>
-      <div class="cell-container">
-        <van-cell title="商品编码" :value="shop.YPBM" />
-      </div>
-      <van-cell title="供应商名称" :value="shop.DWMC" />
-      <van-cell class="refuse" title="拒收数量">
-        <input
+          :ref="'input' + ind"
           class="refuse-input"
           type="text"
           :style="{ width: '100%' }"
-          @blur="registerSl(shop, 'JSSL')"
-          v-model="shop.JSSL"
-          placeholder="请输入拒收数量"
+          @keyup.enter="saveCode(shop)"
+          v-model="shop.internationalBarCode"
+          placeholder="请输入商品条码"
         />
       </van-cell>
     </div>
@@ -91,22 +66,10 @@ export default {
     return {};
   },
   methods: {
-    // 上架数量输入框的验证
-    registerSl(shop, type) {
-      console.log("shop", shop);
-      let reg = /^[1-9]\d*$/g;
-      if (reg.test(shop[type])) {
-        if (shop[type] > shop.SL) {
-          shop[type] = "";
-          this.$toast.fail(
-            `${type === "SJSL" ? "上架" : "拒收"}数量不能大于订单数量！`
-          );
-        }
-      } else {
-        shop[type] = "";
-        this.$toast.fail("请输入正整数！");
-      }
+    saveCode(row) {
+      this.$emit("saveCode", row);
     },
+
     clickChecked(ind) {
       this.shopList.forEach((item, inds) => {
         if (inds !== ind) {
@@ -213,22 +176,22 @@ export default {
   border-bottom: 0 solid #ebedf0;
 }
 
-.card /deep/ .van-cell:not(:last-child)::before {
-  content: " ";
-  z-index: 49;
-  position: absolute;
-  pointer-events: none;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  height: 100%;
-  width: 0;
-  // left: 15px;
-  right: -8px;
-  top: 0;
-  -webkit-transform: scaleY(0.5);
-  transform: scaleY(0.5);
-  border-right: 1px solid #ebedf0;
-}
+// .card /deep/ .van-cell:not(:last-child)::before {
+//   content: " ";
+//   z-index: 49;
+//   position: absolute;
+//   pointer-events: none;
+//   -webkit-box-sizing: border-box;
+//   box-sizing: border-box;
+//   height: 100%;
+//   width: 0;
+//   // left: 15px;
+//   right: -8px;
+//   top: 0;
+//   -webkit-transform: scaleY(0.5);
+//   transform: scaleY(0.5);
+//   border-right: 1px solid #ebedf0;
+// }
 
 .card .refuse /deep/ .van-cell__title {
   width: 10%;
@@ -263,6 +226,7 @@ export default {
   width: 100%;
   position: relative;
   margin-bottom: 10px;
+  padding-bottom: 5px;
   .cell-container {
     display: flex;
   }

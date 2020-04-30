@@ -1,7 +1,7 @@
 <template>
   <div class="home-content">
     <div
-      class="card"
+      class="card border-bottom"
       :style="{ paddingTop: isChecked ? '30px' : 0 }"
       v-for="(shop, ind) in shopList"
       :key="ind"
@@ -262,7 +262,7 @@ export default {
 .card {
   width: 100%;
   position: relative;
-  margin-bottom: 10px;
+  padding-bottom: 10px;
   .cell-container {
     display: flex;
   }

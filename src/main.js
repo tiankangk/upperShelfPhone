@@ -51,7 +51,7 @@ Vue.use(SwitchCell)
     .use(Button)
     .use(Icon)
     .use(NoticeBar);
-
+    Toast.setDefaultOptions({ duration: 1000 });
 /* eslint-disable no-new */
 new Vue({
     el: '#app',

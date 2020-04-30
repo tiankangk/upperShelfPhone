@@ -10,7 +10,7 @@
         show-action
         @search="onSearch"
       >
-        <van-dropdown-menu
+        <!-- <van-dropdown-menu
           class="drop-menu"
           z-index="99"
           :style="{ background: 'transparent' }"
@@ -27,7 +27,7 @@
               >确认</van-button
             >
           </van-dropdown-item>
-        </van-dropdown-menu>
+        </van-dropdown-menu> -->
       </van-search>
     </div>
     <van-list
@@ -38,19 +38,26 @@
       finished-text="没有更多了"
       @load="onLoad"
     >
-      <home-content :shopList="shopList" :isChecked="false"></home-content>
+      <home-content
+        ref="vanList"
+        :shopList="shopList"
+        :isChecked="false"
+        @saveCode="saveCode"
+      ></home-content>
     </van-list>
   </div>
 </template>
 
 <script>
-import { getPhoneUpperShelfShop } from "@/api";
+import { getNoCodeShop, saveCode } from "@/api";
 import HomeContent from "./home-content";
+import { mapGetters } from "vuex";
 export default {
   name: "code_manange",
   components: {
     HomeContent
   },
+  inject: ["reload"],
   data() {
     return {
       searchVal: "",
@@ -58,11 +65,62 @@ export default {
       isCode: false,
       loading: false,
       finished: false,
-      page: 1,
+      pageIndex: 1,
+      pageSize: 10,
       shopList: []
     };
   },
+  computed: {
+    ...mapGetters(["getUserId", "getUserMc"])
+  },
   methods: {
+    /**
+     * @description 保存条码
+     */
+    saveCode(row) {
+      //   let reg = /^[1-9]\d*$/g;
+      //   if (reg.test(row.internationalBarCode)) {
+      this.$dialog
+        .confirm({
+          title: "提示",
+          message: "确定要修改条码吗"
+        })
+        .then(() => {
+          let data = {
+            userId: this.getUserId,
+            userName: this.getUserMc,
+            productId: row.productId,
+            internationalBarCode: row.internationalBarCode
+          };
+          this.$toast.loading({
+            duration: 0, // 持续展示 toast
+            forbidClick: true, // 禁用背景点击
+            loadingType: "spinner",
+            mask: true
+          });
+          saveCode(data).then(res => {
+            let {
+              success,
+              data: { result, message }
+            } = res;
+            if (success && result) {
+              this.$toast.success(message);
+            } else {
+              this.$toast.fail(message);
+            }
+            let timer = setTimeout(() => {
+              this.reload();
+              clearTimeout(timer);
+            }, 1000);
+          });
+        })
+        .catch(() => {
+          // on cancel
+        });
+      //   } else {
+      //     this.$toast.fail("请输入正确的条码！");
+      //   }
+    },
     onSearch() {
       this.loading = true;
       window.scrollTo(0, 0);
@@ -73,66 +131,69 @@ export default {
         clearTimeout(timer);
       }, 0);
     },
-    onConfirm() {},
-    handleFilterShop() {},
     onLoad() {
-      // this.reload();
-
       this.loading = true;
-      this.page++;
-      getPhoneUpperShelfShop({
-        searchVal: this.searchVal,
-        page: this.page
+      this.pageIndex++;
+      getNoCodeShop({
+        queryName: this.searchVal,
+        pageIndex: this.pageIndex,
+        pageSize: this.pageSize
       }).then(res => {
         this.loading = false;
-        this.shopList.push(...res.result);
+        let {
+          success,
+          data: { isSuccess, infos, totalCount }
+        } = res;
+        this.shopList.push(...infos);
         this.shopList.forEach((item, ind) => {
-          if (!item.hasOwnProperty("checked")) {
-            this.$set(item, "XTM", "");
-            this.$set(item, "SJSL", item.SL);
-            this.$set(item, "JSSL", "");
-            this.$set(item, "checked", false);
-          }
+          this.$set(item, "internationalBarCode", "");
         });
-        if (res.result.length < 10) {
+        this.getFocus();
+        if (infos.length < 10) {
           this.finished = true;
         }
       });
     },
+    getFocus() {
+      this.$nextTick(() => {
+        this.$refs.vanList.$refs.input0[0].focus();
+      });
+    },
     initData() {
-      this.page = 1;
+      this.pageIndex = 1;
       this.$toast.loading({
         duration: 0, // 持续展示 toast
         forbidClick: true, // 禁用背景点击
         loadingType: "spinner",
         mask: true
       });
-      getPhoneUpperShelfShop({
-        searchVal: this.searchVal,
-        page: this.page
+      getNoCodeShop({
+        queryName: this.searchVal,
+        pageIndex: this.pageIndex,
+        pageSize: this.pageSize
       }).then(res => {
-        if (res.result.length < 10) {
-          this.finished = true;
-        }
-        this.shopList = res.result;
-        this.$toast.clear();
-        this.shopList.forEach((item, ind) => {
-          this.$set(item, "XTM", "");
-          this.$set(item, "SJSL", item.SL);
-          this.$set(item, "JSSL", "");
-          if (ind === 0) {
-            this.$set(item, "checked", true);
+        console.log("res", res);
+        let {
+          success,
+          data: { isSuccess, infos, totalCount }
+        } = res;
+        if (success && isSuccess) {
+          if (infos.length < 10) {
+            this.finished = true;
           } else {
-            this.$set(item, "checked", false);
+            this.finished = false;
           }
-        });
-        if (this.searchVal) {
-          if (this.$refs.addShelf) {
-            this.$refs.addShelf.focus();
-          }
+          this.shopList = infos;
+
+          this.shopList.forEach((item, ind) => {
+            this.$set(item, "internationalBarCode", "");
+          });
+          this.getFocus();
         } else {
-          document.querySelector(".search-content input").focus();
+          this.finished = true;
+          this.shopList = [];
         }
+        this.$toast.clear();
       });
     }
   },
@@ -151,7 +212,7 @@ export default {
   overflow: hidden;
   .header {
     .search-content {
-      padding: 0 10px;
+      padding: 10px;
     }
     /deep/ .van-search__action {
       background: transparent;
